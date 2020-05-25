@@ -1,0 +1,194 @@
+/**
+ * 页面脚本
+ */
+App["/res/yilaiok/js/admin/${jspSubFolder}/list"] = function(){
+
+	var grid_table = "grid-table";
+	var grid_selector = "#"+grid_table;
+	
+	//初始化事件
+	function initEvent(){
+		//日期选择
+		Common.initDatepicker("yyyy-mm-dd","input-daterange");
+	}
+	
+	
+	//初始化表格
+	function initTable(){
+		
+	
+		var pager_selector = "#grid-pager";
+		var searchForm = jQuery('[data-for="'+grid_table+'"]');
+		
+		var isMobile = Common.isMobile();
+		
+		var tableDataUrl = basePath + '/admin/${urlName}/pagelist';
+		var idName = "${propId}";
+		var isMutiselect = true;
+		
+		jQuery(function() {
+			
+			Common.initJqgridResize(grid_table);//初始化表格宽度自适应
+
+			var colModel =  [{
+				classes:"control-td",
+		        label: '操作',
+		        name: 'ids',
+		        index: '',
+		        width: Common.getColumnWidth(80),
+		        fixed: true,
+		        sortable: false,
+		        resize: false,
+		        formatter: function(cellvalue, options, rowObject) {
+		        	return Common.createRowButtons(['<a data-id="'+rowObject.${propId}+'" href="javascript:void(0)" title="'+("删除本条记录")+'"  class="deleteButton">【删除】</a>' 
+		        			]);
+		        }
+		        
+		        	#set( $i = 0)
+					#foreach ( $property in $properties )
+					#set ( $cnName  = $property.getChild("cnName"))
+					  #set ( $proType = $property.getChild("proType"))
+				   	 #set ( $javaType = $proType.getAttributeValue("javaType") )  
+				   	 #set ( $lowerName = $property.getAttributeValue("lowercaseName") ) 
+				   	 #set ( $i = $i+1 ) 
+   	 	  #if($i < 4 )
+			}, {
+				label: '$cnName.getAttributeValue("value")',
+				name: '$property.getAttributeValue("lowercaseName")'
+			#else
+			}, {
+				label: '$cnName.getAttributeValue("value")',
+				name: '$property.getAttributeValue("lowercaseName")',
+				width: 80,
+		        hidden:isMobile//手机隐藏
+			 #end 
+		  #end 
+		    }];
+			
+			
+			//创建表格
+			var jqgrid = jQuery(grid_selector).jqGrid(
+					Common.getJqgirdOptions(
+					{
+			    url:tableDataUrl ,//取数据URL
+			    multiselect: isMutiselect,
+			    jsonReader:Common.createJsonHeader({id:idName}),//定义属性名
+			    postData:Common.getSearchData(searchForm),//默认带查询条件
+			    colModel:colModel,
+			    pager: pager_selector
+			},grid_table)); 
+			
+			
+			
+			//navButtons
+			jQuery(grid_selector)
+			.navGrid( pager_selector,Common.getNavbarOptions({
+				
+			})).navButtonAdd(pager_selector, {
+
+				caption : "<span class='hidden-768'>导出EXCEL</span>",
+
+				buttonicon : "ace-icon fa fa-file-excel-o black",
+
+				onClickButton : function(e) {
+					
+					var url = basePath + "/admin/${urlName}/export_excel";
+					Common.exportExcel(url,jqgrid);
+					
+				},
+
+				position : "first"
+
+			}).navButtonAdd(pager_selector, {
+
+				caption : "<span class='hidden-768'>列选择</span>",
+
+				buttonicon : "ace-icon fa fa-cogs black",
+
+				onClickButton : function(e) {
+					
+					Common.toggleColumnSelectot(e,grid_table,colModel);
+					
+				},
+
+				position : "first"
+
+			}).navButtonAdd(pager_selector, {
+
+				caption : "<span class='hidden-768'>批量删除</span>",
+
+				buttonicon : "ace-icon fa fa-trash-o red",
+
+				onClickButton : function() {
+						var batchDeleteUrl = basePath + "/admin/${urlName}/batch_delete";
+						Common.batchDelete(batchDeleteUrl,jqgrid)
+				},
+
+				position : "first"
+
+			}).navButtonAdd(pager_selector, {
+
+				caption : "<span class='hidden-768'>添加${objectCnName}</span>",
+
+				buttonicon : "ace-icon fa fa-plus-circle  green",
+
+				onClickButton : function() {
+					var ids = Common.getJqgridIds(jqgrid).getString();
+					var idArray = Common.getJqgridIds(jqgrid).getArray();
+					try{
+						${menberName}AddWindow.load();
+					}catch(e){
+						
+						App.showModalDialog(basePath + "/page/admin/${jspSubFolder}/add","${menberName}AddWindow");
+					}
+				},
+
+				position : "first"
+
+			})
+
+			$(window).triggerHandler('resize.jqGrid');//trigger window resize to make the grid get the correct size
+
+			
+			//初始化查询事件
+			Common.initJqgridSearch(jqgrid,searchForm);
+			
+			//绑定表格中的按钮事件
+			jqgrid.click(function(e){
+				e = EventUtil.getEventTarget(e);
+				var $e = $(e);
+				if($e.hasClass("deleteButton")){//删除
+					App.showConfirm("确定要删除吗?","question",function(){
+						var id = $e.data("id");
+						var deleteUrl = basePath + "/admin/${urlName}/delete";
+						App.post(deleteUrl,{"id":id},function(data){
+							App.showResult(data,function(){
+								jqgrid.trigger("reloadGrid");//刷新表格
+							});
+						});
+					});
+				}
+			});
+			
+		});
+		
+	}
+	
+	function initSearchWrap(){
+		if(Common.isMobile()){
+			Common.toggleSearchWrap($(".toggleButton"),"close");
+		}else{
+			Common.toggleSearchWrap($(".toggleButton"),"open");
+		}
+	}
+	
+	return {
+		"init":function(){
+			initSearchWrap();
+			initTable();
+			initEvent();
+		},
+		"jqgrid":jQuery(grid_selector)
+	}
+	
+}();

@@ -1,0 +1,166 @@
+﻿#*
+	GBP v3 配套自动代码生成的控制文件。
+	总体控制自动生成代码文件
+*#
+
+##获得全局信息，如包名，模块名，作者，日期等
+#set ($package = $root.getAttributeValue("package"))
+#set ($directory = $package.replace('.', '/'))
+#set ($sysName = $root.getAttributeValue("sysName"))
+#set ($module = $root.getAttributeValue("module"))
+#set ($author = $root.getAttributeValue("author"))
+#set ($CurrentDate = $root.getAttributeValue("currentDate"))
+#set ($jspSubFolder = $root.getAttributeValue("jspSubFolder"))
+
+
+##获取配置文件中的对象集合
+#set ($allObjects = $xpath.applyTo("object", $root))
+
+
+##重新获取对象
+#set ($allObjects = $xpath.applyTo("object", $root))
+
+##根据设置，计算出属性应该处理成哪种java类型
+#foreach ( $object in $allObjects )
+        
+        #set ($allProps = $xpath.applyTo("property", $object))
+
+        #foreach ( $prop in $allProps )
+
+            #set ( $proType = $prop.getChild("proType"))
+            
+            ##判断将属性处理成哪种java类型
+            #*if ($proType.getAttributeValue("isPk")=="true")  
+                ##如果长度为0，则认为主键是数字型，否则认为是字符型
+                #if ($proType.getAttributeValue("length")=="0")
+                    #set ( $javaTypeValue = "Integer" )
+                    #set ( $javaFullTypeValue = "java.lang.Integer" )
+                #else
+                    #set ( $javaTypeValue = "String")
+                    #set ( $javaFullTypeValue = "java.lang.String")
+                #end
+                ##为了区分主键类型,给对象设置keyPropType属性\
+                #set ( $tmp = $object.setAttribute("keyPropType",$javaTypeValue) )
+                #*
+                ##将属性的名称改为id（但是没有判断属性名是否重复）
+                #set ( $tmp = $prop.setAttribute("name","id") )
+                #set ( $tmp = $prop.setAttribute("lowercaseName","id") )
+                #set ( $tmp = $prop.setAttribute("firstUpperCase","Id") )
+                *#
+            *#
+            #if($proType.getAttributeValue("value")=="boolean")  
+                #set ( $javaTypeValue = "Boolean")
+                #set ( $javaFullTypeValue = "java.lang.Boolean")
+            #elseif($proType.getAttributeValue("value")=="date")  
+                #set ( $javaTypeValue = "Date")
+                #set ( $javaFullTypeValue = "java.util.Date")
+            #elseif($proType.getAttributeValue("value")=="double")  
+                #set ( $javaTypeValue = "Double")
+                #set ( $javaFullTypeValue = "java.lang.Double")
+            #elseif($proType.getAttributeValue("value")=="long")  
+                #set ( $javaTypeValue = "Long")
+                #set ( $javaFullTypeValue = "java.lang.Long")
+            #elseif($proType.getAttributeValue("value")=="decimal")  
+                #set ( $javaTypeValue = "BigDecimal")
+                #set ( $javaFullTypeValue = "java.math.BigDecimal")
+              #elseif($proType.getAttributeValue("value")=="double")  
+                #set ( $javaTypeValue = "Double")
+                #set ( $javaFullTypeValue = "java.lang.Double")
+            #elseif($proType.getAttributeValue("value")=="float")  
+                #set ( $javaTypeValue = "Float")
+                #set ( $javaFullTypeValue = "java.lang.Float")
+             #elseif($proType.getAttributeValue("value")=="integer")  
+                    #set ( $javaTypeValue = "Integer")
+                    #set ( $javaFullTypeValue = "java.lang.Integer")
+            #elseif($proType.getAttributeValue("value")=="bytea")  
+                #set ( $javaTypeValue = "byte[]")
+                #set ( $javaFullTypeValue = "java.lang.Byte")
+            #else
+                #set ( $javaTypeValue = "String")
+                #set ( $javaFullTypeValue = "java.lang.String")
+            #end
+            
+            #set ( $tmp = $proType.setAttribute("javaType",$javaTypeValue) )
+            #set ( $tmp = $proType.setAttribute("javaFullType",$javaFullTypeValue) )
+        #end
+
+#end
+
+##以下创建java类路径 
+#set ($javaCommonPath = "src/main/java/${directory}/${module}")
+#set ($javaCommonPathT = "src/main/resources/${directory}/${module}")
+$files.mkdir("${outputDirectory}/${javaCommonPath}/service/")
+$files.mkdir("${outputDirectory}/${javaCommonPath}/dao/")
+$files.mkdir("${outputDirectory}/${javaCommonPath}/model/")
+$files.mkdir("${outputDirectory}/${javaCommonPath}/controller/data/")
+$files.mkdir("${outputDirectory}/${javaCommonPath}/dto/")
+$files.mkdir("${outputDirectory}/${javaCommonPath}/qo/")
+$files.mkdir("${outputDirectory}/${javaCommonPath}/qo/jqgrid/")
+
+##循环创建各对象的相关文件
+#foreach ( $object in $allObjects )
+	##-- 以下分别是对象的中文名称、对象名称、对象对应的数据库表名
+	##-- 对象包含属性的集合
+	
+	#set ( $tableFirstUpperCase = $object.getAttributeValue("tableFirstUpperCase"))
+	#set ( $tableFirstLowerCase = $object.getAttributeValue("tableFirstLowerCase"))
+	#set ( $tableName = $object.getAttributeValue("tableName"))
+	#set ( $isView = $object.getAttributeValue("isView"))
+	#set ( $urlName = $object.getAttributeValue("urlName"))
+	#set ( $idJdbcType = $object.getAttributeValue("idJdbcType"))
+	#set ( $where = $object.getAttributeValue("where"))
+	#set ( $results = $object.getAttributeValue("results"))
+	#set ( $updateSelective = $object.getAttributeValue("updateSelective"))
+	#set ( $update = $object.getAttributeValue("update"))
+	#set ( $propId = $object.getAttributeValue("propId"))
+	#set ( $firstUpperPropId = $object.getAttributeValue("firstUpperPropId"))
+	#set ( $fieldId = $object.getAttributeValue("fieldId"))
+	#set ( $insertSelective = $object.getAttributeValue("insertSelective"))
+	#set ( $insertSelectiveValues = $object.getAttributeValue("insertSelectiveValues"))
+	#set ( $fields = $object.getAttributeValue("fields"))
+	#set ( $fieldsValues = $object.getAttributeValue("fieldsValues"))
+	#set ( $json = $object.getAttributeValue("json"))
+	#set ( $objectCnName = $object.getAttributeValue("cnName"))
+	#set ( $objectTwinceTable = $object.getAttributeValue("twinceTable"))
+	#set ( $objectTwinceView = $object.getAttributeValue("twinceView"))
+	#set ( $objectname   = $object.getAttributeValue("lowercaseName"))
+	#set ( $tableName    = $object.getAttributeValue("dbtableName"))
+	#set ( $properties   = $object.getChildren("property") )
+	#set ( $numPercentPage= $object.getAttributeValue("numPercentPage") )	
+	#set ( $lowercaseName= $objectname.toLowerCase() )
+	#set ( $capiName     = $object.getAttributeValue("firstUpperCase"))
+	#set ( $menberName     = $object.getAttributeValue("firstLowerCase"))
+	#set ( $moudleName     = $object.getAttributeValue("moudleName"))
+	#set ( $twinceTableName     = $object.getAttributeValue("twinceTableName"))
+	#set ( $twinceTableNameCaptial     = $object.getAttributeValue("twinceTableNameCaptial"))
+	#set ( $twinceViewName     = $object.getAttributeValue("twinceViewName"))
+	#set ( $twinceViewNameCaptial     = $object.getAttributeValue("twinceViewNameCaptial"))
+
+
+	##-- 每页显示的记录数,缺省值为20
+	#if ($numPercentPage == "")
+		#set($numPercentPage = 20)
+	#end
+		
+	##以下分别创建VO，Service，dao，Controller类 
+	#set ($fname = "$javaCommonPath/model/${capiName}.java" )
+	$generator.parse("java/moudle.vsl","$fname")
+	
+	#set ($fname = "$javaCommonPath/qo/${capiName}Qo.java" )
+	$generator.parse("java/qo.vsl","$fname")
+	
+	#set ($fname = "$javaCommonPath/qo/jqgrid/${capiName}JqgridQo.java" )
+	$generator.parse("java/jqgridqo.vsl","$fname")
+	
+	#set ($fname = "$javaCommonPath/dto/${capiName}Dto.java" )
+	$generator.parse("java/dto.vsl","$fname")
+
+	#set ($fname = "$javaCommonPath/service/${capiName}Service.java" )
+	#$generator.parse("java/service.vsl","$fname")
+			
+	#set ($fname = "$javaCommonPath/dao/${capiName}Dao.java" )
+	#$generator.parse("java/dao.vsl","$fname")	
+
+	#set ($fname = "$javaCommonPath/controller/data/${capiName}DataController.java" )
+	#$generator.parse("java/controller.vsl","$fname")	
+#end

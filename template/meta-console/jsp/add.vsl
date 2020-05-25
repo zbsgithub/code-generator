@@ -1,0 +1,134 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<!-- 公用配置 -->
+<%@ include file="../../../common/basePath.jsp"%>
+<%@ include file="../../../common/taglib.jsp"%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- META标签 -->
+<%@ include file="../../../common/meta.jsp"%>
+<title>添加${objectCnName} ${systemName}</title>
+
+<!-- CSS -->
+<%@ include file="../../../common/styles.jsp"%>
+
+</head>
+
+<body class="no-skin">
+	<!-- #section:basics/navbar.layout -->
+	<!-- 导航条 -->
+	<%@ include file="../../../common/navbar_min.jsp"%>
+
+	<!-- /section:basics/navbar.layout -->
+	<div class="main-container" id="main-container">
+		<script type="text/javascript">
+			try {
+				ace.settings.check('main-container', 'fixed')
+			} catch (e) {
+			}
+		</script>
+
+		<!-- #section:basics/sidebar -->
+		<!-- 左菜单 -->
+		<%-- <%@ include file="../../../common/sidebar.jsp"%> --%>
+		<!-- /section:basics/sidebar -->
+
+		<div class="main-content">
+			<div class="page-content" id="pageContent">
+				<!-- 异步请求主体内容 -->
+
+				<div class="page-content" id="pageContent">
+					<div class="page-content-area">
+						<div class="page-header">
+							<h1>添加${objectCnName}</h1>
+						</div>
+						<!-- /.page-header -->
+						<div class="row">
+							<div class="col-xs-12">
+								<!-- PAGE CONTENT BEGINS -->
+								<form class="form-horizontal" role="form" id="addForm">
+								
+									#foreach ( $property in $properties )
+								    #set ( $proType = $property.getChild("proType"))
+								    #set ( $javaType = $proType.getAttributeValue("javaType") )  
+								    #set ( $lowerName = $property.getAttributeValue("lowercaseName") )
+								    	#set ( $cnName  = $property.getChild("cnName")) 
+									<!-- #section:elements.form -->
+									<div class="form-group">
+										<label class="col-sm-3 control-label no-padding-right"
+											for="form-field-1"> $cnName.getAttributeValue("value") </label>
+
+										<div class="col-sm-9">
+												<input type="text" name="$property.getAttributeValue("lowercaseName")" class="col-xs-10 col-sm-5">
+										</div>
+									</div>
+									#end
+									<!-- /section:elements.form -->
+									<div class="space-4"></div>
+
+
+									<div class="clearfix form-actions">
+										<div class="col-sm-offset-3 col-md-offset-3 col-md-9">
+											<button type="button" class="btn btn-info" id="submitButton">
+												<i class="ace-icon fa fa-check bigger-110"></i> 提交
+											</button>
+
+											&nbsp; &nbsp; &nbsp;
+											<button type="reset" class="btn">
+												<i class="ace-icon fa fa-undo bigger-110"></i> 重置
+											</button>
+										</div>
+									</div>
+									<div class="hr hr-24"></div>
+								</form>
+
+								<!-- PAGE CONTENT ENDS -->
+							</div>
+							<!-- /.col -->
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+			<!-- /.page-content -->
+		</div>
+		<!-- /.main-content -->
+
+		<!-- 底部 -->
+		<%@ include file="../../../common/footer.jsp"%>
+
+	</div>
+
+	<!-- JS -->
+	<%@ include file="../../../common/scripts.jsp"%>
+
+	<script>
+		jQuery(function(){
+			var id = "${id}";
+			var url = basePath + "/admin/${urlName}/add";
+			if(id){
+				url =  basePath + "/admin/${urlName}/edit";
+			}
+				
+			jQuery("#submitButton").click(function(){
+				App.submitForm(url,$("#addForm").serialize(),function(data){
+					App.showResult(data,function(){
+						try{
+							window.opener.App["/res/yilaiok/js/admin/${jspSubFolder}/list"].jqgrid.trigger("reloadGrid");
+							window.close();
+						}catch(e){
+							history.go(-1);
+						}
+						
+					});
+				});
+			});
+		});
+	</script>
+
+</body>
+</html>
+

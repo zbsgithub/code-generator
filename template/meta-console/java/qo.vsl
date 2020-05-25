@@ -1,0 +1,106 @@
+##值对象类的生成模板
+##ZhengWangli 2005.3.4
+package ${package}.${module}.qo;
+
+import ${package}.${module}.common.db.mybatis.query.page.Pagination;
+import ${package}.${module}.instance.module.${capiName};
+
+##计算主键的个数
+#set ($keyColumnNum = 0)
+#set ($dateColumnNum = 0)
+#set ($decimalColumnNum = 0)
+#foreach ($property in $properties)
+    #if($property.getAttributeValue("isPK") == "true")
+        #set ($keyColumnNum = $keyColumnNum + 1)
+    #end
+    #if($property.getChild("proType").getAttributeValue("javaType") == "Date")
+    	#set ($dateColumnNum = $dateColumnNum + 1)
+    #end
+    #if($property.getChild("proType").getAttributeValue("javaType") == "BigDecimal")
+    	#set ($decimalColumnNum = $decimalColumnNum + 1)
+    #end
+#end
+
+#if($decimalColumnNum > 0)
+import java.math.BigDecimal;
+#end
+
+
+#if($dateColumnNum > 0)
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+import ${package}.${module}.common.util.DateUtil;
+
+import java.util.Date;
+
+#end
+
+
+public class ${capiName}Qo extends Pagination<${capiName}> {
+
+#foreach ( $property in $properties )
+#set ( $cnName  = $property.getChild("cnName"))
+#set ( $proType = $property.getChild("proType"))   
+#set($keyColumn = $property.getChild("dbcolumnTable").getAttributeValue("value") )
+
+ 		#if($property.getAttributeValue("jdbcType") == "TIMESTAMP" )
+    
+    		@DateTimeFormat(pattern = DateUtil.DEFAULT_DATETIME_FORMAT)
+    	#end
+		#if($property.getAttributeValue("jdbcType") == "DATE")
+		
+			@DateTimeFormat(pattern = DateUtil.DEFAULT_DATE_FORMAT)
+		#end
+		#if($property.getAttributeValue("jdbcType") == "TIME" )
+		
+			@DateTimeFormat(pattern = DateUtil.DEFAULT_TIME_FORMAT)
+        #end 
+	private $proType.getAttributeValue("javaType") $property.getAttributeValue("lowercaseName"); //$cnName.getAttributeValue("value")
+
+#end
+
+
+
+/** 以下为get,set方法 */
+#foreach ( $property in $properties )
+    #set ( $proType = $property.getChild("proType"))
+    #set ( $javaType = $proType.getAttributeValue("javaType") )  
+    #set ( $lowerName = $property.getAttributeValue("lowercaseName") ) 
+   		 #if($property.getAttributeValue("jdbcType") == "TIMESTAMP" )
+    
+    		@JsonFormat(pattern = DateUtil.DEFAULT_DATETIME_FORMAT, timezone = DateUtil.DEFAULT_TIMEZONE)
+    	#end
+		#if($property.getAttributeValue("jdbcType") == "DATE")
+		
+			@JsonFormat(pattern = DateUtil.DEFAULT_DATE_FORMAT, timezone = DateUtil.DEFAULT_TIMEZONE)
+		#end
+		#if($property.getAttributeValue("jdbcType") == "TIME" )
+		
+			@JsonFormat(pattern = DateUtil.DEFAULT_TIME_FORMAT, timezone = DateUtil.DEFAULT_TIMEZONE)
+        #end 
+		
+        	
+        	 public ${javaType} get$property.getAttributeValue("firstUpperCase")() {
+		        return this.${lowerName};
+	        }
+	        public void set$property.getAttributeValue("firstUpperCase")(${javaType} ${lowerName}) {
+	        	this.${lowerName} = ${lowerName};
+	        }
+	
+
+#end
+
+
+
+#if( $object.getAttributeValue("twinceTable")=="1" )
+public void getViewData(${twinceViewNameCaptial} ${twinceViewName}) {
+    #foreach ($property in $properties)
+        this.set$property.getAttributeValue("firstUpperCase")(${twinceViewName}.get$property.getAttributeValue("firstUpperCase")());
+    #end
+    this.setUploadFileStream(${twinceViewName}.getUploadFileStream());
+}
+#end
+
+
+}

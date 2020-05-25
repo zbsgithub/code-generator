@@ -1,0 +1,298 @@
+##数据库访问类的生成模板
+#set ($lobProps = $xpath.applyTo("property/proType[@value='blob' or @value='clob']", $object))
+
+##计算主键的个数
+#set ($keyColumnNum = 0)
+#set ($dateColumnNum = 0)
+#foreach ($property in $properties)
+    #if($property.getAttributeValue("isPK") == "true")
+        #set ($keyColumnNum = $keyColumnNum + 1)
+    #end
+    #if($property.getChild("proType").getAttributeValue("javaType") == "Date")
+    	#set ($dateColumnNum = $dateColumnNum + 1)
+    #end
+#end
+
+
+package ${package}.${module}.dao;
+
+import java.io.Serializable;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.type.JdbcType;
+ #if(${idJdbcType}!="VARCHAR" && $keyColumnNum == 1)
+import org.apache.ibatis.annotations.Options;
+#end
+
+
+import ${package}.${module}.common.db.mybatis.dao.BaseDAOInterface;
+import ${package}.${module}.common.db.mybatis.query.QueryInterface;
+import ${package}.${module}.model.${capiName};
+
+/**
+ * 
+ *  说明：${objectCnName}对象的数据访问类
+ * 
+ * @author ${author}
+ * 
+ * @version 1.0
+ * 
+ * @since ${CurrentDate}
+ */
+public interface ${capiName}Dao extends BaseDAOInterface<${capiName}> {
+
+	 #if(${isView} != "true")
+	
+	/**
+	 * 
+	 * 功能描述：保存
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Insert({ "insert into $object.getAttributeValue("dbtableName") ( ${fields})  values (${fieldsValues})" })
+	@Override
+	 #if(${idJdbcType}!="VARCHAR" && $keyColumnNum == 1)
+	@Options(useGeneratedKeys = true, keyProperty = "${propId}")
+	#end
+	public void insert(${capiName} entity);
+
+	/**
+	 * 
+	 * 功能描述：选择字段保存
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Insert({
+			"<script>"
+			+"insert into $object.getAttributeValue("dbtableName") "
+		    +"<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\" > ${insertSelective} </trim> "
+		    +" <trim prefix=\"values (\" suffix=\")\" suffixOverrides=\",\" > ${insertSelectiveValues} </trim>"
+		    +"</script>" 
+			})
+	@Override
+	 #if(${idJdbcType}!="VARCHAR" && $keyColumnNum == 1)
+	@Options(useGeneratedKeys = true, keyProperty = "${propId}")
+	#end
+	public void insertSelective(${capiName} entity);
+	
+	
+
+	/**
+	 * 
+	 * 功能描述：根据ID删除
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Delete({ "delete from $object.getAttributeValue("dbtableName") where ${fieldId} = #{id,jdbcType=${idJdbcType}}" })
+	@Override
+	public void deleteByID(Serializable id);
+
+	/**
+	 * 
+	 * 功能描述：根据ID数组批量删除
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Delete({
+			"<script>"
+			+"delete from $object.getAttributeValue("dbtableName") where ${fieldId} in "
+			+"<foreach  item=\"id\"  collection=\"array\" open=\"(\" separator=\",\" close=\")\" > #{id} </foreach>"
+			+"</script>" 
+			})
+	@Override
+	public void batchDelete(Serializable... ids);
+
+	/**
+	 * 
+	 * 功能描述：更新
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Update({ "update $object.getAttributeValue("dbtableName") set ${update} where ${fieldId} = #{${propId},jdbcType=${idJdbcType}} " })
+	@Override
+	public void update(${capiName} entity);
+	
+	
+
+	/**
+	 * 
+	 * 功能描述：选择字段更新
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Update({
+			"<script>"
+			+"update $object.getAttributeValue("dbtableName") "
+			+"<set > ${updateSelective} </set> "
+			+"where ${fieldId} = #{${propId},jdbcType=${idJdbcType}}"
+			+"</script>" 
+			})
+	@Override
+	public void updateSelective(${capiName} entity);
+
+	#end
+
+	/**
+	 * 
+	 * 功能描述：查询所有
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Select({ "select * from $object.getAttributeValue("dbtableName")" })
+	@Results({${results} })
+	@Override
+	public List<${capiName}> findAll();
+
+	/**
+	 * 
+	 * 功能描述：查询总数
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Select({ "select count(${fieldId}) from $object.getAttributeValue("dbtableName")" })
+	@Override
+	public int findTotalCount();
+
+	/**
+	 * 
+	 * 功能描述：根据ID查询
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Select({ "select * from $object.getAttributeValue("dbtableName") where ${fieldId} = #{id,jdbcType=${idJdbcType}}" })
+	@Results({${results} })
+	@Override
+	public ${capiName} findById(Serializable id);
+
+	/**
+	 * 
+	 * 功能描述：根据查询对象查询
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Select({
+			"<script>"
+			+"select * from $object.getAttributeValue("dbtableName") "
+			+"<where> 1 = 1 "
+			+"${where} "
+			+"</where> order by ${fieldId} </script>" 
+			})
+	@Results({${results} })
+	@Override
+	public List<${capiName}> findList(QueryInterface query);
+
+	/**
+	 * 
+	 * 功能描述：根据查询对象查询记录数
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Select({
+			"<script>"
+			+"select count(${fieldId}) from $object.getAttributeValue("dbtableName") "
+			+"<where> 1 = 1 "
+			+"${where} "
+			+"</where></script>" 
+			})
+	@Override
+	public int findTotalCountByCondition(QueryInterface query);
+
+	/**
+	 * 
+	 * 功能描述：根据查询对象查询分页记录
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@Select({
+			"<script>"
+			+"select * from $object.getAttributeValue("dbtableName") "
+			+"<where> 1 = 1 "
+			+"${where} "
+			+"</where> order by ${fieldId} "
+			+"<if test=\"pagination==1\" > limit #{first,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}</if>"
+			+"</script>" 
+			})
+	@Results({${results} })
+	@Override
+	public List<${capiName}> findPaginationDataByCondition(QueryInterface query);
+
+}
+

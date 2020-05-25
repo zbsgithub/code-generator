@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 代码生成工程的ant配置文件 -->
+<project name="代码生成" default="run" basedir=".">
+	<property file="gen.properties" />
+	<!-- 
+    templatePath    - 模板存放的路径
+    configFile      - 生成代码所需的元数据文件
+    outputDirectory - 生成代码的存放目录
+    project     - 项目名称。默认czbs
+    module      - 模块名称
+    author      - 作者名称
+    -->
+	<property name="templatePath" value="template/meta" />
+	<!-- <property name="templatePath" value="template/meta-console" />-->
+	<property name="outputDirectory" value="out" />
+
+	<property name="bin.dir" value="web/WEB-INF/classes" />
+	<property name="src.dir" value="src" />
+	<property name="lib.dir" value="web/WEB-INF/lib" />
+
+	<path id="lib.class.path">
+		<fileset dir="${bin.dir}" />
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+
+	<!-- 声明进行代码生成的task -->
+	<taskdef name="texen" classname="com.davidstudio.gbp.tool.ant.TexenXmlTask" classpath="${bin.dir}" classpathref="lib.class.path"/>
+
+	<!-- 声明格式化xml文件的task -->
+	<taskdef name="formatXML" classpath="${bin.dir}" classpathref="lib.class.path" classname="com.davidstudio.gbp.tool.ant.FormatXmlTask" />
+
+	<!-- 运行GUI界面程序 -->
+	<target name="run">
+		<java classname="com.davidstudio.gbp.tool.ConfigApplication" 
+			fork="true"
+			classpath="${bin.dir}" 
+			classpathref="lib.class.path" />
+	</target>
+
+	<!-- 进行代码生成 -->
+	<target name="generate">
+	  
+	  <delete dir="${outputDirectory}" quiet="true"/>
+	  <mkdir dir="${outputDirectory}"/>
+	  
+		<texen templatePath="${templatePath}" 
+		controlTemplate="control.vm" 
+		configFile="${configFile}" 
+		outputDirectory="${outputDirectory}" 
+		packageName="${package}" 
+		moduleName="${model}" 
+		authorName="${author}"
+		jspSubFolder="${jspSubFolder}"/>
+		<!--格式化xml文件，去掉多余的空行
+        <formatXML>
+            <fileset dir="${outputDirectory}">
+                <exclude name="**/applicationContext-*.xml" />  
+                <exclude name="**/webwork-*.xml" />            
+                <include name="**/*.xml" />
+            </fileset>
+        </formatXML> 
+		 格式化xml,java,jsp文件，如有多个空行，只留一个 
+		<replaceregexp match="(\n[ \t]*\r)+" replace="\1" flags="g" byline="false">
+			<fileset dir="${outputDirectory}" includes="**/*.xml" />
+			<fileset dir="${outputDirectory}" includes="**/*.java" />
+			<fileset dir="${outputDirectory}" includes="**/*.jsp" />
+		</replaceregexp>
+		<replaceregexp match="^[ \t]+$" replace="" flags="g" byline="true">
+			<fileset dir="${outputDirectory}" includes="**/*.xml" />
+			<fileset dir="${outputDirectory}" includes="**/*.java" />
+			<fileset dir="${outputDirectory}" includes="**/*.jsp" />
+		</replaceregexp>
+		 格式化jsp文件 
+		<replaceregexp match="\$\{ (.*) \}" replace="${\1}" flags="g" byline="false">
+			<fileset dir="${outputDirectory}/web" includes="**/*.jsp" />
+		</replaceregexp>
+		<replaceregexp match="^[ \t]+$" replace="" flags="g" byline="false">
+			<fileset dir="out" includes="/log.txt" />
+		</replaceregexp>
+		-->
+	</target>
+</project>

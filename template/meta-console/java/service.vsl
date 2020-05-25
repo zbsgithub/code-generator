@@ -1,0 +1,73 @@
+##业务逻辑类的生成模板
+##计算主键的个数
+#set ($keyColumnNum = 0)
+#set ($dateColumnNum = 0)
+#foreach ($property in $properties)
+    #if($property.getAttributeValue("isPK") == "true")
+        #set ($keyColumnNum = $keyColumnNum + 1)
+    #end
+    #if($property.getChild("proType").getAttributeValue("javaType") == "Date")
+    	#set ($dateColumnNum = $dateColumnNum + 1)
+    #end
+#end
+
+package ${package}.${module}.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ${package}.${module}.common.db.mybatis.component.jqgrid.AbstractJqgridBaseService;
+import ${package}.${module}.common.db.mybatis.dao.BaseDAOInterface;
+
+ #if(${idJdbcType}=="VARCHAR" && $keyColumnNum == 1)
+import ${package}.${module}.common.util.UUIDUtil;
+#end
+
+import ${package}.${module}.dao.${capiName}Dao;
+import ${package}.${module}.model.${capiName};
+
+/**
+ * 
+ * 说明：处理对${objectCnName}的业务操作
+ * 
+ * @author ${author}
+ * 
+ * @version 1.0
+ * 
+ * @since ${CurrentDate}
+ */
+@Service
+public class ${capiName}Service extends AbstractJqgridBaseService<${capiName}> {
+
+	@Autowired
+	private ${capiName}Dao ${menberName}Dao;
+	
+	 #if(${idJdbcType}=="VARCHAR" && $keyColumnNum == 1)
+	 
+    @Transactional
+    @Override
+	public void insert(${capiName} entity) {
+		if (null == entity.get${firstUpperPropId}()) {
+			entity.set${firstUpperPropId}(UUIDUtil.generatePrimaryKey());
+		}
+		super.insert(entity);
+	}
+
+	@Transactional
+	@Override
+	public void insertSelective(${capiName} entity) {
+		if (null == entity.get${firstUpperPropId}()) {
+			entity.set${firstUpperPropId}(UUIDUtil.generatePrimaryKey());
+		}
+		super.insertSelective(entity);
+	}
+
+  	#end
+
+	@Override
+	protected BaseDAOInterface<${capiName}> getDAO() {
+		return ${menberName}Dao;
+	}
+
+}

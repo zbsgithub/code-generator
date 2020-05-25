@@ -1,0 +1,109 @@
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+
+<div class="page-content" id="pageContent">
+	<div class="page-content-area">
+		<!-- <div class="page-header">
+			<h1>
+				用户中心 <small> <i class="ace-icon fa fa-angle-double-right"></i>
+					工程师用户
+				</small>
+			</h1>
+		</div> -->
+		<!-- /.page-header -->
+
+		<div class="row">
+			<div class="col-xs-12">
+
+				<!-- 查询条件 -->
+				<div class="row">
+					<div class="col-xs-12 toggleDivWrap">
+						<div class="ui-jqgrid ui-widget ui-widget-content ui-corner-all ">
+							<div class="ui-jqgrid-view">
+								<div class="ui-jqgrid-titlebar ui-jqgrid-caption ui-widget-header ui-corner-top ui-helper-clearfix togglebar" title="点击 展开/收缩">
+									<a class="ui-jqgrid-titlebar-close ui-corner-all HeaderButton toggleButton" role="link" style="right: 0px;"><span class="ui-icon ui-icon-circle-triangle-s"></span></a><span class="ui-jqgrid-title"><i class="ace-icon fa fa-search bigger-110"></i> 查询</span>
+								</div>
+
+							</div>
+						</div>
+						<div class="ui-state-default ui-jqgrid-hdiv toggleDiv searchDiv" style="display: none;">
+							<div class="ui-jqgrid-hbox">
+								<div class="row">
+									<div class="col-md-12">
+										<form data-for="grid-table" data-search="true" class="form-horizontal" role="form" style="padding-top: 15px;">
+											<!-- #section:elements.form -->
+											#set( $i = 0)
+											#set( $j = 0)
+											#foreach ( $property in $properties )
+											#set ( $cnName  = $property.getChild("cnName"))
+											  #set ( $proType = $property.getChild("proType"))
+										   	 #set ( $javaType = $proType.getAttributeValue("javaType") )  
+										   	 #set ( $lowerName = $property.getAttributeValue("lowercaseName") ) 
+										   	 #set ( $i = $i+1 ) 
+										   	 #set ( $j = $j+1 ) 
+										   	  #if($i == 1 )
+													<div class="form-group">
+												#end
+													#if($property.getAttributeValue("jdbcType") == "TIME" || $property.getAttributeValue("jdbcType") == "DATE" || $property.getAttributeValue("jdbcType") == "TIMESTAMP")
+																<label class="col-md-1 col-sm-2 col-xs-4 control-label no-padding-right" for="form-field-1">$cnName.getAttributeValue("value")</label>
+
+																<div class="col-md-4 col-sm-10 col-xs-8">
+																	<div class="input-daterange input-group col-md-10 col-sm-10 col-xs-10">
+																		<input type="text" placeholder="开始时间" class="col-sm-12 col-xs-12 col-md-12" name="$property.getAttributeValue("lowercaseName")Start"> <span class="input-group-addon"> 至 </span> <input type="text" placeholder="结束时间" class="col-sm-12 col-xs-12 col-md-12" name="$property.getAttributeValue("lowercaseName")End">
+																	</div>
+				
+																</div>
+													 #else
+														 <label class="col-md-1 col-sm-2  col-xs-4 control-label no-padding-right" for="form-field-1">$cnName.getAttributeValue("value")</label>
+		
+														<div class="col-md-4 col-sm-10 col-xs-8 ">
+															<input type="text" placeholder="请输入$cnName.getAttributeValue("value")" name="$property.getAttributeValue("lowercaseName")" class="col-xs-10 col-sm-10">
+														</div>
+													 #end 
+													 
+												 #if($i != 1 || $j == $properties.size() )
+												 	 #set ( $i = 0 ) 
+													</div>
+												#end
+											#end
+											<div style="margin-bottom: 0px;" class="form-group">
+												<div style="padding-bottom: 0px;" class="col-lg-8 col-lg-offset-4 col-md-8 col-md-offset-4 col-sm-8 col-sm-offset-4 col-xs-10 col-xs-offset-2">
+													<a class="btn btn-primary searchButton"> <i class="ace-icon fa fa-search bigger-110"></i> 查询
+													</a>
+
+													<button class="btn btn-default " type="reset">
+														<i class="ace-icon fa fa-undo bigger-110"></i> 重置
+													</button>
+												</div>
+											</div>
+
+
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<!-- 	<br> -->
+				<!-- 列表 -->
+				<div class="row">
+					<div class="col-xs-12">
+
+						<table id="grid-table"></table>
+
+						<div id="grid-pager"></div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<%@include file="../../common/export_dialog.jsp" %>
+
+<script data-src="${basePath}/res/yilaiok/js/admin/${jspSubFolder}/list.js"  src="/res/yilaiok/js/admin/${jspSubFolder}/list.js"></script>
+<script>
+	App["/res/yilaiok/js/admin/${jspSubFolder}/list"].init();
+</script>

@@ -1,0 +1,221 @@
+package ${package}.${module}.controller.data;
+
+import java.io.Serializable;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+##import ${package}.${module}.common.db.mybatis.query.page.PaginationInterface;
+##import ${package}.${module}.common.db.mybatis.query.page.Pagination;
+import ${package}.${module}.common.db.mybatis.result.Result;
+import ${package}.${module}.instance.module.${capiName};
+import ${package}.${module}.instance.dto.${capiName}Dto;
+import ${package}.${module}.instance.qo.defaults.${capiName}Qo;
+import ${package}.${module}.service.${capiName}Service;
+
+/**
+ * 
+ * ${capiName}信息控制器（管理员）
+ *
+ * @author ${author}
+ *
+ * @version
+ *
+ * @since ${CurrentDate}
+ */
+@Controller
+public class ${capiName}DataController {
+
+	@Autowired
+	private  ${capiName}Service ${menberName}Service;
+	
+	/**
+	 * 
+	 * 功能描述：${objectCnName}列表--普通分页
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@RequestMapping("data/${urlName}/pagelist")
+	@ResponseBody
+	public Result pagelist(@RequestBody ${capiName}Qo qo) {
+		return Result.valueOf(Result.SUCCESS, "操作成功", ${menberName}Service.findPaginationDataByCondition(qo));
+	}
+	
+	/**
+	 * 
+	 * 功能描述：${objectCnName}列表--通过条件查询
+	 * 
+	 * @return
+	 * 
+	 * @author ${author}
+	 * 
+	 * @since ${CurrentDate}
+	 * 
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@RequestMapping("data/${urlName}/list")
+	@ResponseBody
+	public Result list(@RequestBody ${capiName}Qo qo) {
+		return Result.valueOf(Result.SUCCESS, "操作成功", ${menberName}Service.findList(qo));
+	}
+
+	
+
+	/**
+	 * 
+	 * 功能描述：${objectCnName}详情
+	 *
+	 * @param id
+	 * @return
+	 * 
+	 * @author ${author}
+	 *
+	 * @since 2015年10月30日
+	 *
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@RequestMapping("data/${urlName}/detail")
+	@ResponseBody
+	public Result detail(@RequestParam String id) {
+
+		return Result.valueOf(Result.SUCCESS, "操作成功", ${menberName}Service.findById(id));
+	}
+	
+	/**
+	 * 
+	 * 功能描述：${objectCnName}批量删除
+	 *
+	 * @param id
+	 * @return
+	 * 
+	 * @author ${author}
+	 *
+	 * @since 2015年10月30日
+	 *
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@RequestMapping("data/${urlName}/batch_delete")
+	@ResponseBody
+	public Result batchDelete(@RequestParam Serializable... ids) {
+
+	 #if(${isView} == "true")
+	 	${tableFirstLowerCase}Service.batchDelete(ids);
+	 #else
+	 ${menberName}Service.batchDelete(ids);
+	#end
+		
+
+		return Result.valueOf(Result.SUCCESS, "操作成功");
+	}
+
+	/**
+	 * 
+	 * 功能描述：${objectCnName}删除
+	 *
+	 * @param id
+	 * @return
+	 * 
+	 * @author ${author}
+	 *
+	 * @since 2015年10月30日
+	 *
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@RequestMapping("data/${urlName}/delete")
+	@ResponseBody
+	public Result delete(@RequestParam String id) {
+
+		
+			 #if(${isView} == "true")
+			 	${tableFirstLowerCase}Service.deleteByID(id);
+			 #else
+			 ${menberName}Service.deleteByID(id);
+			#end
+
+		return Result.valueOf(Result.SUCCESS, "操作成功");
+	}
+
+	/**
+	 * 
+	 * 功能描述：${objectCnName}添加
+	 *
+	 * @param id
+	 * @return
+	 * 
+	 * @author ${author}
+	 *
+	 * @since 2015年10月30日
+	 *
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@RequestMapping("data/${urlName}/add")
+	@ResponseBody
+	 #if(${isView} == "true")
+	public Result add(@RequestBody ${tableFirstUpperCase}Dto dto) {
+	 #else
+	 public Result add(@RequestBody ${capiName}Dto dto) {
+	#end
+
+	
+		 #if(${isView} == "true")
+		 	${tableFirstUpperCase} ${tableFirstLowerCase} = new ${tableFirstUpperCase}();
+			BeanUtils.copyProperties(dto, ${tableFirstLowerCase});
+		 	${tableFirstLowerCase}Service.insert(${tableFirstLowerCase});
+		#else
+				${capiName} ${menberName} = new ${capiName}();
+				BeanUtils.copyProperties(dto, ${menberName});
+				${menberName}Service.insert(${menberName});
+		
+		#end
+		
+
+		return Result.valueOf(Result.SUCCESS, "操作成功");
+	}
+
+	/**
+	 * 
+	 * 功能描述：${objectCnName}修改
+	 *
+	 * @param id
+	 * @return
+	 * 
+	 * @author ${author}
+	 *
+	 * @since 2015年10月30日
+	 *
+	 * @update:[变更日期YYYY-MM-DD][更改人姓名][变更描述]
+	 */
+	@RequestMapping("data/${urlName}/update")
+	@ResponseBody
+	 #if(${isView} == "true")
+	public Result edit(@RequestBody ${tableFirstUpperCase}Dto dto) {
+	 #else
+	 public Result edit(@RequestBody ${capiName}Dto dto) {
+	#end
+	
+	 #if(${isView} == "true")
+		 	${tableFirstUpperCase} ${tableFirstLowerCase} = new ${tableFirstUpperCase}();
+			BeanUtils.copyProperties(dto, ${tableFirstLowerCase});
+		 	${tableFirstLowerCase}Service.updateSelective(${tableFirstLowerCase});
+		#else
+				${capiName} ${menberName} = new ${capiName}();
+				BeanUtils.copyProperties(dto, ${menberName});
+				${menberName}Service.updateSelective(${menberName});
+		
+		#end
+
+		return Result.valueOf(Result.SUCCESS, "操作成功");
+	}
+
+}

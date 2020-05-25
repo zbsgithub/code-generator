@@ -1,0 +1,131 @@
+<%@include file="/WEB-INF/jsp/one/taglib.jspf"%>
+<c:set var="comment_ajaxEditPagerIdentify" value="comment_ajaxEditPagerIdentify" scope="request"   /> 
+<c:set var="action" value="/S3/${package}/${module}/${objectname}/" scope="request"   />
+<c:set var="_sys_json_url" value="${action}loadJsonData" scope="request"   />
+<c:set var="_sys_idName" value="id" scope="request"   />
+
+
+<script type="text/javascript">
+
+</script>
+
+<div class="pageContent">
+	<form method="post" id="editForm" action="<c:url value='${ action }saveEdit'/>" class="pageForm required-validate" onsubmit="return validateCallback(this, navTabAjaxDone);">
+		<div class="pageFormContent" layoutH="56">
+			<input name="${_sys_idName}" class="required textInput readonly"  type="hidden" size="30"  value="${ ${objectname}.id }"   />
+		
+
+<table width="100%">
+#set ($editProps = $xpath.applyTo("property[(displayType/@readOnly='0' and displayType/@value!='hidden')  and proType/@value!='id']", $object) )
+  #foreach ( $property in $editProps )	  
+    #set ( $propName = $property.getAttributeValue("lowercaseName")) 
+    #set ( $displayType = $property.getChild("displayType").getAttributeValue("value")) 
+    ##是否为必填字段
+    #set ( $needInput = "" ) 
+    #if($property.getChild("isNull").getAttributeValue("value") == "0")
+      #set ( $needInput = "必提" ) 
+    #end
+                
+<tr><td align="right">
+				<label>$property.getChild("cnName").getAttributeValue("value"):</label>
+</td><td>				
+  #if($displayType == "date") ##日期类型
+                  
+                <input id="${propName}" name="${propName}" type="text" class="editMainText" size="10"  value="<fmt:formatDate value='${ data.${propName} }' pattern='$property.getChild("proType").getAttributeValue("style")'/>">  ${needInput}
+                
+    #elseif( $displayType == "select" ) ##下拉框类型
+                    
+                <select id="p_${propName}" name="p_${propName}"></select> ${needInput}
+                
+    #elseif( $displayType == "textarea" ) ##textarea类型
+                <textarea class="easyui-validatebox" id="p_${propName}" name="p_${propName}" data-options="validType:'length[1,2000]'" style="height:60px;">${ data.${propName} }</textarea> ${needInput}
+    #elseif( $displayType == "text" ) ##文本框，长度100以下的增加maxlength属性
+                <input class="easyui-validatebox" id="${propName}" name="${propName}" type="text" value="${ ${objectname}.${propName} }" data-options="validType:'length[1,$property.getChild("proType").getAttributeValue("length")]'"></input>
+    #else ##文件，单选，多选等
+
+                <input id="p_${propName}" name="p_${propName}" type="${displayType}"> ${needInput}
+                
+    #end
+</td></tr>
+  #end
+
+  
+  
+  
+			
+<tr><td colspan="2" align="center">
+<c:set var="comment_ajaxEditPagerIdentify" value="comment_ajaxEditPagerIdentify" scope="request"   /> 
+<a href="javascript:void(0);" class="easyui-linkbutton" iconCls="icon-edit" onclick="submitEditForm();">保存</a>
+</td></tr>
+</table>
+		
+		
+
+					
+
+		
+			
+			
+		</div>
+	
+	</form>
+</div>
+
+
+
+
+
+
+
+<script type="text/javascript">
+
+			function submitEditForm(){
+				var isValid = $('#sqlForm').form('validate');
+				if(isValid){
+					var url = "<c:url value='${action}saveEdit'/>";
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: $("#editForm").serialize(), // serializes the form's elements.
+           success: function(data)
+           {
+           		if(data.indexOf("${comment_ajaxEditPagerIdentify}") >= 0){
+           			$.messager.alert('错误','不能保存数据!','error');
+           		}else{
+           		//	editRecord();
+           			
+           			haveEditValue = true;
+
+
+	$.ajax({
+											 type: "POST",
+											 url: '<c:url value="${action}/loadJsonData" />',
+											 data: $("#queryForm").serialize(), // serializes the form's elements.
+											 success: function(data)
+											 {
+													//$("#queryForm").submit();	
+													$("#mydatagrid").datagrid('loadData',data);
+													
+											 }
+										});
+
+										$.messager.alert('提示','修改成功!','info');
+
+
+           		}
+           },
+           error: function(jqXHR, exception) {
+						$.messager.alert('错误','不能保存数据!','error');
+					 }
+         });
+					
+				}
+			}
+			
+			
+			
+
+			
+		</script>
+	
+</form>	

@@ -1,0 +1,71 @@
+﻿
+
+
+
+
+
+
+        
+        
+        
+                        
+                        
+            *#
+                                    
+                    
+                        
+                        
+            *#
+                                    
+                    
+                        
+                        
+            *#
+                                    
+                    
+                        
+                        
+            *#
+                                    
+                    
+                        
+                        
+            *#
+                                    
+                    
+                        
+                        
+            *#
+                                    
+                    
+                        
+                        
+            *#
+                                    
+                    
+
+Created dir: D:\新codeGen\code-generator\code-generator2\out/src/main/java/com/z2006/core/service/
+Created dir: D:\新codeGen\code-generator\code-generator2\out/src/main/java/com/z2006/core/dao/
+Created dir: D:\新codeGen\code-generator\code-generator2\out/src/main/java/com/z2006/core/model/
+Created dir: D:\新codeGen\code-generator\code-generator2\out/src/main/java/com/z2006/core/controller/data/
+Created dir: D:\新codeGen\code-generator\code-generator2\out/src/main/java/com/z2006/core/dto/
+Created dir: D:\新codeGen\code-generator\code-generator2\out/src/main/java/com/z2006/core/qo/
+Created dir: D:\新codeGen\code-generator\code-generator2\out/src/main/java/com/z2006/core/qo/jqgrid/
+
+			
+	
+
+				
+		
+	
+		
+	
+		
+	
+		
+
+		#
+			
+		#	
+
+		#	
